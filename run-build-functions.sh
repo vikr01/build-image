@@ -284,6 +284,12 @@ install_dependencies() {
       echo "Error installing bundler"
       exit 1
     fi
+
+    if ! gem install --user-install executable-hooks
+    then
+      echo "Error updating executable-hooks"
+      exit 1
+    fi
   fi
 
   # Java version
