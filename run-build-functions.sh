@@ -73,18 +73,27 @@ run_yarn() {
   fi
   restore_home_cache ".yarn_cache" "yarn cache"
 
-  if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]
+  if [ $yarn_version ]
   then
-    echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
-    rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
-    npm uninstall yarn -g
-  fi
+    if [ $(which yarn) ] && [ "$(yarn --version)" != "$yarn_version" ]
+    then
+      echo "Found yarn version ($(yarn --version)) that doesn't match expected ($yarn_version)"
+      rm -rf $NETLIFY_CACHE_DIR/yarn $HOME/.yarn
+      npm uninstall yarn -g
+    fi
 
-  if ! [ $(which yarn) ]
-  then
-    echo "Installing yarn at version $yarn_version"
-    rm -rf $HOME/.yarn
-    bash /usr/local/bin/yarn-installer.sh --version $yarn_version
+    if ! [ $(which yarn) ]
+    then
+      echo "Installing yarn at version $yarn_version"
+      rm -rf $HOME/.yarn
+      bash /usr/local/bin/yarn-installer.sh --version $yarn_version
+      mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
+      export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
+    fi
+  else
+    echo "Installing latest yarn version"
+    rm -rf $Home/.yarn
+    bash /usr/local/bin/yarn-installer.sh --latest
     mv $HOME/.yarn $NETLIFY_CACHE_DIR/yarn
     export PATH=$NETLIFY_CACHE_DIR/yarn/bin:$PATH
   fi
